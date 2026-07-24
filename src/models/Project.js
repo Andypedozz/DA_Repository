@@ -1,30 +1,35 @@
-
-import { db } from "../lib/db";
+import { db } from "../lib/db.js";
 
 async function findAll() {
-    await db.select("*").from("Project");
+    const result = (await db.execute("SELECT * FROM Project")).rows;
+    return result;
 }
 
 async function findById(id) {
-    await db.select("*").from("Project").where("id", id);
+    return (await db.execute("SELECT * FROM Project WHERE id = ?", [id])).rows[0];
 }
 
 async function create(data) {
-    await db.insert(data).into("Project");
+    const result = await db.execute("INSERT INTO Project (nome, descrizione, user_id, stato, data_creazione) VALUES (?, ?, ?, ?, ?)", [data.nome, data.descrizione, data.user_id, data.stato, data.data_creazione]);
+    return result;
 }
 
 async function update(id, data) {
-    await db.update(data).from("Project").where("id", id);
+    const result = await db.execute("UPDATE Project SET nome = ?, descrizione = ?, user_id = ?, stato = ?, data_creazione = ? WHERE id = ?", [data.nome, data.descrizione, data.user_id, data.stato, data.data_creazione, id]);
+    return result;
 }
 
 async function destroy(id) {
-    await db.delete().from("Project").where("id", id);
+    const result = await db.execute("DELETE FROM Project WHERE id = ?", [id]);
+    return result;
 }
 
-export const Project = {
+const Project = {
     findAll,
     findById,
     create,
     destroy,
     update,
 };
+
+export default Project;

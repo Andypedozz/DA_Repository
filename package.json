@@ -13,8 +13,10 @@
   "license": "ISC",
   "packageManager": "pnpm@10.28.2",
   "dependencies": {
-    "@libsql/knex-libsql": "^0.1.0",
+    "@libsql/client": "^0.17.4",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "knex": "^3.3.0"
+    "jsonwebtoken": "^9.0.3"
   }
 }

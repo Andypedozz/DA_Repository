@@ -1,6 +1,7 @@
 import express from "express";
 import userRoutes from "./src/routes/UserRoutes.js";
 import projectRoutes from "./src/routes/ProjectRoutes.js";
+import { createDatabase } from "./src/lib/db.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -20,6 +21,8 @@ app.use("/users", userRoutes);
 app.use("/projects", projectRoutes);
 
 // Autenticazione e autorizzazione
-app.use("/auth", authRoutes);
+
+// Inizializzazione database
+createDatabase();
 
 export default app;

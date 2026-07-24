@@ -1,30 +1,36 @@
-
-import { db } from "../lib/db";
+import { db } from "../lib/db.js";
 
 async function findAll() {
-    await db.select("*").from("User");
+    const result = (await db.execute("SELECT * FROM User")).rows;
+    return result;
 }
 
 async function findById(id) {
-    await db.select("*").from("User").where("id", id);
+    const result = (await db.execute("SELECT * FROM User WHERE id = ?", [id])).rows[0];
+    return result;
 }
 
 async function create(data) {
-    await db.insert(data).into("User");
+    const result = await db.execute("INSERT INTO User (nome, email, password, ruolo) VALUES (?, ?, ?, ?)", [data.nome, data.email, data.password, data.ruolo]);
+    return result;
 }
 
 async function update(id, data) {
-    await db.update(data).from("User").where("id", id);
+    const result = await db.execute("UPDATE User SET nome = ?, email = ?, password = ?, ruolo = ? WHERE id = ?", [data.nome, data.email, data.password, data.ruolo, id]);
+    return result;
 }
 
 async function destroy(id) {
-    await db.delete().from("User").where("id", id);
+    const result = await db.execute("DELETE FROM User WHERE id = ?", [id]);
+    return result;
 }
 
-export const User = {
+const User = {
     findAll,
     findById,
     create,
     destroy,
     update
 };
+
+export default User;
