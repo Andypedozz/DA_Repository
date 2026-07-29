@@ -23,8 +23,6 @@ app.use("/users", userRoutes);
 // Progetti
 app.use("/projects", projectRoutes);
 
-// Autenticazione e autorizzazione
-
 // Inizializzazione database
 createDatabase();
 

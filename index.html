@@ -270,6 +270,20 @@
             overflow-y: auto;
         }
 
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            display: none;
+        }
+
         @media (max-width: 640px) {
             body {
                 padding: 1rem;
@@ -291,6 +305,7 @@
 
         <!-- Messaggi di stato -->
         <div id="message" style="margin: 1rem 0; font-weight: 500;"></div>
+        <div id="errorContainer" class="error"></div>
 
         <div class="dashboard-grid">
             <!-- CARD USER -->
@@ -363,42 +378,39 @@
 
     <script>
         // ==========================
-        //   FAKE DB (localStorage)
+        //   API CONFIGURATION
         // ==========================
-        const DB_KEY = 'app_db';
+        const API_BASE = window.location.origin; // o specifica http://localhost:3000
 
-        function getDB() {
-            const raw = localStorage.getItem(DB_KEY);
-            if (!raw) {
-                const initial = {
-                    users: [],
-                    projects: [],
-                    tasks: [],
-                    nextId: { user: 1, project: 1, task: 1 }
-                };
-                localStorage.setItem(DB_KEY, JSON.stringify(initial));
-                return initial;
+        // ==========================
+        //   API HELPERS
+        // ==========================
+        async function apiRequest(endpoint, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
             }
-            return JSON.parse(raw);
-        }
 
-        function saveDB(db) {
-            localStorage.setItem(DB_KEY, JSON.stringify(db));
-        }
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const result = await response.json();
 
-        // ==========================
-        //   HELPERS
-        // ==========================
-        function generateId(type) {
-            const db = getDB();
-            const id = db.nextId[type] || 1;
-            db.nextId[type] = id + 1;
-            saveDB(db);
-            return id;
-        }
+                if (!response.ok) {
+                    throw new Error(result.message || `Errore ${response.status}`);
+                }
 
-        function getNow() {
-            return new Date().toISOString().slice(0, 10);
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                showError(error.message);
+                throw error;
+            }
         }
 
         function showMessage(text, isError = false) {
@@ -408,25 +420,62 @@
             setTimeout(() => { el.textContent = ''; }, 3000);
         }
 
-        // ==========================
-        //   RENDER
-        // ==========================
-        function renderAll() {
-            renderUsers();
-            renderProjects();
-            renderTasks();
-            populateSelects();
-            updateCounts();
+        function showError(text) {
+            const el = document.getElementById('errorContainer');
+            el.textContent = text;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 5000);
         }
 
-        function renderUsers() {
-            const db = getDB();
+        function getNow() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        // ==========================
+        //   DATA LOADING
+        // ==========================
+        async function loadData() {
+            try {
+                const [users, projects, tasks] = await Promise.all([
+                    apiRequest('/users'),
+                    apiRequest('/projects'),
+                    // Nota: per i task dovresti avere una rotta corrispondente
+                    // Per ora simuliamo con un array vuoto o aggiungiamo la rotta
+                    // Se non hai ancora implementato /tasks, usiamo un array vuoto
+                    apiRequest('/tasks').catch(() => [])
+                ]);
+
+                // Se il backend non ha ancora la rotta /tasks, la simuliamo
+                // (in produzione, implementa la rotta TaskRoutes)
+                const allTasks = tasks.length > 0 ? tasks : [];
+
+                renderUsers(users);
+                renderProjects(projects);
+                renderTasks(allTasks);
+                populateSelects(users, projects);
+                updateCounts(users, projects, allTasks);
+
+                // Salva i dati in una variabile globale per i riferimenti
+                window._cachedUsers = users;
+                window._cachedProjects = projects;
+                window._cachedTasks = allTasks;
+
+                return { users, projects, tasks: allTasks };
+            } catch (error) {
+                showError('Errore nel caricamento dei dati: ' + error.message);
+            }
+        }
+
+        // ==========================
+        //   RENDER FUNCTIONS
+        // ==========================
+        function renderUsers(users) {
             const list = document.getElementById('userList');
-            if (db.users.length === 0) {
+            if (!users || users.length === 0) {
                 list.innerHTML = '<div class="empty">Nessun utente</div>';
                 return;
             }
-            list.innerHTML = db.users.map(u => `
+            list.innerHTML = users.map(u => `
                 <div class="item">
                     <div class="item-info">
                         <span><span class="label">${u.nome}</span> (${u.email})</span>
@@ -439,15 +488,15 @@
             `).join('');
         }
 
-        function renderProjects() {
-            const db = getDB();
+        function renderProjects(projects) {
             const list = document.getElementById('projectList');
-            if (db.projects.length === 0) {
+            if (!projects || projects.length === 0) {
                 list.innerHTML = '<div class="empty">Nessun progetto</div>';
                 return;
             }
-            list.innerHTML = db.projects.map(p => {
-                const user = db.users.find(u => u.id === p.user_id);
+            const users = window._cachedUsers || [];
+            list.innerHTML = projects.map(p => {
+                const user = users.find(u => u.id === p.user_id);
                 const userName = user ? user.nome : '?';
                 const statusClass = `status-${p.stato}`;
                 return `
@@ -456,7 +505,7 @@
                             <span><span class="label">${p.nome}</span></span>
                             <span class="status-tag ${statusClass}">${p.stato}</span>
                             <span>👤 ${userName}</span>
-                            <span style="font-size:0.75rem;color:#64748b;">${p.data_creazione}</span>
+                            <span style="font-size:0.75rem;color:#64748b;">${p.data_creazione || ''}</span>
                         </div>
                         <div class="item-actions">
                             <button class="btn btn-danger" onclick="deleteProject(${p.id})">🗑</button>
@@ -466,16 +515,17 @@
             }).join('');
         }
 
-        function renderTasks() {
-            const db = getDB();
+        function renderTasks(tasks) {
             const list = document.getElementById('taskList');
-            if (db.tasks.length === 0) {
+            if (!tasks || tasks.length === 0) {
                 list.innerHTML = '<div class="empty">Nessun task</div>';
                 return;
             }
-            list.innerHTML = db.tasks.map(t => {
-                const project = db.projects.find(p => p.id === t.project_id);
-                const user = db.users.find(u => u.id === t.utente_assegnato);
+            const projects = window._cachedProjects || [];
+            const users = window._cachedUsers || [];
+            list.innerHTML = tasks.map(t => {
+                const project = projects.find(p => p.id === t.project_id);
+                const user = users.find(u => u.id === t.utente_assegnato);
                 const projName = project ? project.nome : '?';
                 const userName = user ? user.nome : '?';
                 const statusClass = `status-${t.stato}`;
@@ -498,149 +548,163 @@
             }).join('');
         }
 
-        function populateSelects() {
-            const db = getDB();
-            // project user select
+        function populateSelects(users, projects) {
+            // Project user select
             const projectUserSelect = document.getElementById('projectUserId');
-            projectUserSelect.innerHTML = db.users.map(u =>
+            projectUserSelect.innerHTML = users.map(u =>
                 `<option value="${u.id}">${u.nome}</option>`
             ).join('');
 
-            // task project select
+            // Task project select
             const taskProjectSelect = document.getElementById('taskProjectId');
-            taskProjectSelect.innerHTML = db.projects.map(p =>
+            taskProjectSelect.innerHTML = projects.map(p =>
                 `<option value="${p.id}">${p.nome}</option>`
             ).join('');
 
-            // task user select
+            // Task user select
             const taskUserSelect = document.getElementById('taskUserId');
-            taskUserSelect.innerHTML = db.users.map(u =>
+            taskUserSelect.innerHTML = users.map(u =>
                 `<option value="${u.id}">${u.nome}</option>`
             ).join('');
         }
 
-        function updateCounts() {
-            const db = getDB();
-            document.getElementById('userCount').textContent = db.users.length;
-            document.getElementById('projectCount').textContent = db.projects.length;
-            document.getElementById('taskCount').textContent = db.tasks.length;
+        function updateCounts(users, projects, tasks) {
+            document.getElementById('userCount').textContent = users ? users.length : 0;
+            document.getElementById('projectCount').textContent = projects ? projects.length : 0;
+            document.getElementById('taskCount').textContent = tasks ? tasks.length : 0;
         }
 
         // ==========================
-        //   CRUD OPERATIONS
+        //   CRUD OPERATIONS (API)
         // ==========================
 
         // --- USER ---
-        window.addUser = function() {
+        window.addUser = async function() {
             const nome = document.getElementById('userNome').value.trim();
             const email = document.getElementById('userEmail').value.trim();
             const password = document.getElementById('userPassword').value.trim();
             const ruolo = document.getElementById('userRuolo').value;
+            
             if (!nome || !email || !password) {
                 showMessage('Compila tutti i campi utente', true);
                 return;
             }
-            const db = getDB();
-            const newUser = {
-                id: generateId('user'),
-                nome,
-                email,
-                password,
-                ruolo
-            };
-            db.users.push(newUser);
-            saveDB(db);
-            document.getElementById('userNome').value = '';
-            document.getElementById('userEmail').value = '';
-            document.getElementById('userPassword').value = '';
-            renderAll();
-            showMessage(`Utente "${nome}" aggiunto ✅`);
+
+            try {
+                const newUser = await apiRequest('/users', 'POST', { nome, email, password, ruolo });
+                showMessage(`Utente "${nome}" aggiunto ✅`);
+                document.getElementById('userNome').value = '';
+                document.getElementById('userEmail').value = '';
+                document.getElementById('userPassword').value = '';
+                await loadData();
+            } catch (error) {
+                showMessage('Errore nella creazione utente', true);
+            }
         };
 
-        window.deleteUser = function(id) {
+        window.deleteUser = async function(id) {
             if (!confirm('Eliminare utente?')) return;
-            let db = getDB();
-            db.users = db.users.filter(u => u.id !== id);
-            // Rimuovi anche progetti e task associati? Per semplicità li lasciamo, ma meglio avvisare.
-            // (in un'app reale si gestirebbe con cascade o foreign key)
-            saveDB(db);
-            renderAll();
-            showMessage('Utente eliminato');
+            try {
+                await apiRequest(`/users/${id}`, 'DELETE');
+                showMessage('Utente eliminato ✅');
+                await loadData();
+            } catch (error) {
+                showMessage('Errore nell\'eliminazione utente', true);
+            }
         };
 
         // --- PROJECT ---
-        window.addProject = function() {
+        window.addProject = async function() {
             const nome = document.getElementById('projectNome').value.trim();
             const descrizione = document.getElementById('projectDesc').value.trim();
             const user_id = parseInt(document.getElementById('projectUserId').value);
             const stato = document.getElementById('projectStato').value;
+
             if (!nome || !descrizione) {
                 showMessage('Inserisci nome e descrizione', true);
                 return;
             }
-            const db = getDB();
-            const newProject = {
-                id: generateId('project'),
-                nome,
-                descrizione,
-                user_id,
-                stato,
-                data_creazione: getNow()
-            };
-            db.projects.push(newProject);
-            saveDB(db);
-            document.getElementById('projectNome').value = '';
-            document.getElementById('projectDesc').value = '';
-            renderAll();
-            showMessage(`Progetto "${nome}" aggiunto ✅`);
+
+            try {
+                const newProject = await apiRequest('/projects', 'POST', {
+                    nome,
+                    descrizione,
+                    user_id,
+                    stato,
+                    data_creazione: getNow()
+                });
+                showMessage(`Progetto "${nome}" aggiunto ✅`);
+                document.getElementById('projectNome').value = '';
+                document.getElementById('projectDesc').value = '';
+                await loadData();
+            } catch (error) {
+                showMessage('Errore nella creazione progetto', true);
+            }
         };
 
-        window.deleteProject = function(id) {
+        window.deleteProject = async function(id) {
             if (!confirm('Eliminare progetto?')) return;
-            let db = getDB();
-            db.projects = db.projects.filter(p => p.id !== id);
-            saveDB(db);
-            renderAll();
-            showMessage('Progetto eliminato');
+            try {
+                await apiRequest(`/projects/${id}`, 'DELETE');
+                showMessage('Progetto eliminato ✅');
+                await loadData();
+            } catch (error) {
+                showMessage('Errore nell\'eliminazione progetto', true);
+            }
         };
 
         // --- TASK ---
-        window.addTask = function() {
+        window.addTask = async function() {
             const descrizione = document.getElementById('taskDesc').value.trim();
             const project_id = parseInt(document.getElementById('taskProjectId').value);
             const utente_assegnato = parseInt(document.getElementById('taskUserId').value);
             const stato = document.getElementById('taskStato').value;
             const priorita = document.getElementById('taskPriorita').value;
             const scadenza = document.getElementById('taskScadenza').value;
+
             if (!descrizione || !scadenza) {
                 showMessage('Compila descrizione e scadenza', true);
                 return;
             }
-            const db = getDB();
-            const newTask = {
-                id: generateId('task'),
-                descrizione,
-                project_id,
-                utente_assegnato,
-                stato,
-                priorita,
-                scadenza
-            };
-            db.tasks.push(newTask);
-            saveDB(db);
-            document.getElementById('taskDesc').value = '';
-            document.getElementById('taskScadenza').value = '';
-            renderAll();
-            showMessage(`Task aggiunto ✅`);
+
+            try {
+                // Nota: se non hai ancora implementato /tasks, questa parte darà errore
+                // Per ora usiamo un endpoint generico o simuliamo
+                const newTask = await apiRequest('/tasks', 'POST', {
+                    descrizione,
+                    project_id,
+                    utente_assegnato,
+                    stato,
+                    priorita,
+                    scadenza
+                });
+                showMessage('Task aggiunto ✅');
+                document.getElementById('taskDesc').value = '';
+                document.getElementById('taskScadenza').value = '';
+                await loadData();
+            } catch (error) {
+                // Se /tasks non è implementato, mostriamo un messaggio
+                if (error.message.includes('404')) {
+                    showMessage('⚠️ Implementa la rotta /tasks nel backend', true);
+                } else {
+                    showMessage('Errore nella creazione task', true);
+                }
+            }
         };
 
-        window.deleteTask = function(id) {
+        window.deleteTask = async function(id) {
             if (!confirm('Eliminare task?')) return;
-            let db = getDB();
-            db.tasks = db.tasks.filter(t => t.id !== id);
-            saveDB(db);
-            renderAll();
-            showMessage('Task eliminato');
+            try {
+                await apiRequest(`/tasks/${id}`, 'DELETE');
+                showMessage('Task eliminato ✅');
+                await loadData();
+            } catch (error) {
+                if (error.message.includes('404')) {
+                    showMessage('⚠️ Implementa la rotta /tasks nel backend', true);
+                } else {
+                    showMessage('Errore nell\'eliminazione task', true);
+                }
+            }
         };
 
         // ==========================
@@ -653,34 +717,10 @@
         // ==========================
         //   INIT
         // ==========================
-        // Inserisco dati di esempio se vuoti
-        (function seed() {
-            const db = getDB();
-            if (db.users.length === 0 && db.projects.length === 0 && db.tasks.length === 0) {
-                // utenti
-                const u1 = { id: generateId('user'), nome: 'Mario Rossi', email: 'mario@test.it', password: '1234',
-                    ruolo: 'admin' };
-                const u2 = { id: generateId('user'), nome: 'Laura Bianchi', email: 'laura@test.it', password: '5678',
-                    ruolo: 'user' };
-                db.users.push(u1, u2);
-                // progetti
-                const p1 = { id: generateId('project'), nome: 'E-commerce', descrizione: 'Sito di vendita online',
-                    user_id: u1.id, stato: 'active', data_creazione: getNow() };
-                const p2 = { id: generateId('project'), nome: 'App Mobile', descrizione: 'Applicazione per iOS/Android',
-                    user_id: u2.id, stato: 'archived', data_creazione: getNow() };
-                db.projects.push(p1, p2);
-                // task
-                const t1 = { id: generateId('task'), descrizione: 'Progettare database', project_id: p1.id,
-                    utente_assegnato: u1.id, stato: 'done', priorita: 'high', scadenza: '2026-08-01' };
-                const t2 = { id: generateId('task'), descrizione: 'Sviluppare API', project_id: p1.id,
-                    utente_assegnato: u2.id, stato: 'doing', priorita: 'medium', scadenza: '2026-08-15' };
-                const t3 = { id: generateId('task'), descrizione: 'Design UI', project_id: p2.id,
-                    utente_assegnato: u2.id, stato: 'todo', priorita: 'low', scadenza: '2026-09-01' };
-                db.tasks.push(t1, t2, t3);
-                saveDB(db);
-            }
-            renderAll();
-        })();
+        loadData();
+
+        // Ricarica i dati ogni 30 secondi (opzionale)
+        setInterval(loadData, 30000);
     </script>
 </body>
 </html>

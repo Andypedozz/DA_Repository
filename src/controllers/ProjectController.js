@@ -1,32 +1,32 @@
-import Project from "../models/Project.js";
+import ProjectService from "../services/ProjectService";
 
 async function getAllProjects(req, res) {
-    const projects = await Project.findAll();
+    const projects = await ProjectService.getAllProjects();
     res.json(projects);
 }
 
 async function getProjectById(req, res) {
     const id = req.params.id;
-    const project = await Project.findById(id);
+    const project = await ProjectService.getProjectById(id);
     res.json(project);
 }
 
 async function createProject(req, res) {
     const data = req.body;
-    await Project.create(data);
+    await ProjectService.createProject(data);
     res.json({ message: "Progetto creato con successo" });
 }
 
 async function updateProject(req, res) {
     const id = req.params.id;
     const data = req.body;
-    await Project.update(id, data);
+    await ProjectService.updateProject(id, data);
     res.json({ message: "Progetto aggiornato con successo" });
 }
 
 async function deleteProject(req, res) {
     const id = req.params.id;
-    await Project.destroy(id);
+    await ProjectService.deleteProject(id);
     res.json({ message: "Progetto eliminato con successo" });
 }
 
