@@ -1,4 +1,4 @@
-import ProjectService from "../services/ProjectService";
+import ProjectService from "../services/ProjectService.js";
 
 async function getAllProjects(req, res) {
     const projects = await ProjectService.getAllProjects();

@@ -1,6 +1,7 @@
 import express from "express";
 import userRoutes from "./src/routes/UserRoutes.js";
 import projectRoutes from "./src/routes/ProjectRoutes.js";
+import taskRoutes from "./src/routes/TaskRoutes.js";
 import { createDatabase } from "./src/lib/db.js";
 import path from "node:path";
 
@@ -22,6 +23,9 @@ app.use("/users", userRoutes);
 
 // Progetti
 app.use("/projects", projectRoutes);
+
+// Tasks
+app.use("/tasks", taskRoutes);
 
 // Inizializzazione database
 createDatabase();
