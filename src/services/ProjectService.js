@@ -1,28 +1,49 @@
 import Project from "../models/Project.js";
 
 async function getAllProjects() {
-    const projects = await Project.findAll();
-    return projects;
+    try {
+        const projects = await Project.findAll();
+        return projects;
+    } catch (error) {
+
+    } 
 }
 
 async function getProjectById(id) {
-    const project = await Project.findById(id);
-    return project;
+    try {
+        const project = await Project.findById(id);
+
+        return project;
+    } catch (error) {
+        
+    }
 }
 
 async function createProject(data) {
-    await Project.create(data);
-    return { message: "Progetto creato con successo" };
+    try {
+        await Project.create(data);
+        return { message: "Progetto creato con successo" };
+    } catch (error) {
+        return { message: "Errore durante la creazione del progetto" };
+    }
 }
 
 async function updateProject(id, data) {
-    await Project.update(id, data);
-    return { message: "Progetto aggiornato con successo" };
+    try {
+        await Project.update(id, data);
+        return { message: "Progetto aggiornato con successo" };
+    } catch (error) {
+        return { message: "Errore durante l'aggiornamento del progetto" };
+    }
 }
 
 async function deleteProject(id) {
-    await Project.destroy(id);
-    return { message: "Progetto eliminato con successo" };
+    try {
+        await Project.destroy(id);
+        return { message: "Progetto eliminato con successo" };
+    } catch (error) {
+        return { message: "Errore durante l'eliminazione del progetto" };
+    }
 }
 
 const ProjectService = {

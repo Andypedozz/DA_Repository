@@ -16,18 +16,30 @@ async function getTaskByProject(id) {
 }
 
 async function createTask(data) {
-    const task = await Task.create(data);
-    return task;
+    try {
+        const task = await Task.create(data);
+        return task;
+    } catch (error) {
+        return { message: "Errore durante la creazione del task" };
+    }
 }
 
 async function updateTask(id, data) {
-    const task = await Task.update(id, data);
-    return task;
+    try {
+        const task = await Task.update(id, data);
+        return task;
+    } catch (error) {
+        return { message: "Errore durante l'aggiornamento del task" };
+    }
 }
 
 async function deleteTask(id) {
-    const task = await Task.destroy(id);
-    return task;
+    try {
+        const task = await Task.destroy(id);
+        return task;
+    } catch (error) {
+        return { message: "Errore durante l'eliminazione del task" };
+    }
 }
 
 const TaskService = {
