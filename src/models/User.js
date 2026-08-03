@@ -10,6 +10,11 @@ async function findById(id) {
     return result;
 }
 
+async function findByEmail(email) {
+    const result = (await db.execute("SELECT * FROM User WHERE email = ?", [email])).rows[0];
+    return result;
+}
+
 async function create(data) {
     const result = await db.execute("INSERT INTO User (nome, email, password, ruolo) VALUES (?, ?, ?, ?)", [data.nome, data.email, data.password, data.ruolo]);
     return result;
@@ -28,6 +33,7 @@ async function destroy(id) {
 const User = {
     findAll,
     findById,
+    findByEmail,
     create,
     destroy,
     update

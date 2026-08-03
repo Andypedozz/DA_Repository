@@ -48,7 +48,7 @@ class PasswordHandler {
      */
     static validatePasswordStrength(password) {
         const errors = [];
-        
+
         if (password.length < 8) {
             errors.push('La password deve essere almeno di 8 caratteri');
         }
@@ -152,10 +152,10 @@ class TokenHandler {
         try {
             // Verifica che il token sia valido (non scaduto)
             const decoded = this.verifyToken(token);
-            
+
             // Rimuovi le informazioni di exp e iat per generare un nuovo token
             const { exp, iat, ...payload } = decoded;
-            
+
             // Genera un nuovo token
             return this.generateToken(payload);
         } catch (error) {
@@ -224,5 +224,4 @@ export {
     PasswordHandler,
     TokenHandler,
     AuthMiddleware,
-    AuthService,
 };

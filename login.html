@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Gestione Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            border: 1px solid #e9edf2;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .auth-header .logo {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 0.5rem;
+            background: #f1f5f9;
+            padding: 0.35rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: #64748b;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #0f172a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #1e293b;
+        }
+
+        .auth-form {
+            display: none;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .auth-form.active {
+            display: flex;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #334155;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d9e6;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            background: #fafcff;
+            width: 100%;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-group .hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.2rem;
+        }
+
+        .btn-auth {
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-auth:hover {
+            background: #2563eb;
+            transform: scale(0.98);
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-auth-secondary {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .btn-auth-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .message {
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+            text-align: center;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .divider {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 0.8rem;
+            position: relative;
+        }
+
+        .form-footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .form-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle input {
+            padding-right: 3rem;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            padding: 0.2rem;
+        }
+
+        .toggle-btn:hover {
+            color: #475569;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 1.5rem;
+            }
+            .auth-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <span class="logo">🔐</span>
+            <h1>Task Manager</h1>
+            <p class="subtitle">Accedi per gestire i tuoi progetti e task</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" data-tab="login" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" data-tab="register" onclick="switchTab('register')">Registrati</button>
+        </div>
+
+        <!-- Message Container -->
+        <div id="message" class="message"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="mario@example.com" required />
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <div class="password-toggle">
+                    <input type="password" id="loginPassword" placeholder="Inserisci la password" required />
+                    <button type="button" class="toggle-btn" onclick="togglePassword('loginPassword')">👁️</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-auth" id="loginBtn">Accedi</button>
+            <div class="form-footer">
+                Non hai un account? <a onclick="switchTab('register')">Registrati</a>
+            </div>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label for="registerNome">Nome Completo</label>
+                <input type="text" id="registerNome" placeholder="Mario Rossi" required />
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="mario@example.com" required />
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <div class="password-toggle">
+                    <input type="password" id="registerPassword" placeholder="Minimo 6 caratteri" required minlength="6" />
+                    <button type="button" class="toggle-btn" onclick="togglePassword('registerPassword')">👁️</button>
+                </div>
+                <span class="hint">La password deve contenere almeno 6 caratteri</span>
+            </div>
+            <div class="form-group">
+                <label for="registerRuolo">Ruolo</label>
+                <select id="registerRuolo">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="guest">Guest</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-auth" id="registerBtn">Registrati</button>
+            <div class="form-footer">
+                Hai già un account? <a onclick="switchTab('login')">Accedi</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ==========================
+        //   CONFIGURATION
+        // ==========================
+        const API_BASE = window.location.origin;
+
+        // ==========================
+        //   UTILITY FUNCTIONS
+        // ==========================
+        function showMessage(text, type = 'success') {
+            const el = document.getElementById('message');
+            el.textContent = text;
+            el.className = 'message ' + type;
+            el.style.display = 'block';
+
+            // Auto hide dopo 5 secondi
+            clearTimeout(window._messageTimeout);
+            window._messageTimeout = setTimeout(() => {
+                el.style.display = 'none';
+            }, 5000);
+        }
+
+        function switchTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+
+            // Update forms
+            document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+            document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+
+            // Clear messages
+            const msg = document.getElementById('message');
+            msg.style.display = 'none';
+            msg.className = 'message';
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+
+        function setLoading(loading) {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const btns = [loginBtn, registerBtn];
+
+            btns.forEach(btn => {
+                if (loading) {
+                    btn.disabled = true;
+                    btn.textContent = 'Caricamento...';
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = btn === loginBtn ? 'Accedi' : 'Registrati';
+                }
+            });
+        }
+
+        // ==========================
+        //   API CALLS
+        // ==========================
+        async function apiRequest(endpoint, data) {
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `Errore ${response.status}`);
+            }
+
+            return result;
+        }
+
+        // ==========================
+        //   AUTH HANDLERS
+        // ==========================
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!email || !password) {
+                showMessage('Inserisci email e password', 'error');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const result = await apiRequest('/auth/login', { email, password });
+
+                // Salva il token (se presente) o i dati utente
+                if (result.token) {
+                    localStorage.setItem('authToken', result.token);
+                }
+                if (result.user) {
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                }
+
+                showMessage('✅ Login effettuato con successo!', 'success');
+
+                // Redirect dopo breve delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 800);
+
+            } catch (error) {
+                showMessage('❌ ' + error.message, 'error');
+                setLoading(false);
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+
+            const nome = document.getElementById('registerNome').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const ruolo = document.getElementById('registerRuolo').value;
+
+            if (!nome || !email || !password) {
+                showMessage('Compila tutti i campi', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('La password deve contenere almeno 6 caratteri', 'error');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const result = await apiRequest('/auth/register', {
+                    nome,
+                    email,
+                    password,
+                    ruolo
+                });
+
+                // Se la registrazione è automaticamente anche login
+                if (result.token) {
+                    localStorage.setItem('authToken', result.token);
+                }
+                if (result.user) {
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                }
+
+                showMessage('✅ Registrazione completata con successo!', 'success');
+
+                // Redirect dopo breve delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 800);
+
+            } catch (error) {
+                showMessage('❌ ' + error.message, 'error');
+                setLoading(false);
+            }
+        }
+
+        // ==========================
+        //   CHECK AUTH STATUS
+        // ==========================
+        function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('user');
+
+            // Se già loggato, reindirizza alla dashboard
+            if (token && user && window.location.pathname === '/login.html') {
+                window.location.href = '/';
+            }
+        }
+
+        // ==========================
+        //   KEYBOARD SHORTCUTS
+        // ==========================
+        document.addEventListener('keydown', function(e) {
+            // Escape per chiudere messaggi
+            if (e.key === 'Escape') {
+                const msg = document.getElementById('message');
+                msg.style.display = 'none';
+            }
+        });
+
+        // ==========================
+        //   INIT
+        // ==========================
+        checkAuth();
+
+        // Se non c'è token, mostriamo la pagina normalmente
+        console.log('🚀 Pagina di autenticazione caricata');
+    </script>
+</body>
+</html>

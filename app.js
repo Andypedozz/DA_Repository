@@ -1,7 +1,8 @@
 import express from "express";
 import userRoutes from "./src/routes/UserRoutes.js";
 import projectRoutes from "./src/routes/ProjectRoutes.js";
-import taskRoutes from "./src/routes/TaskRoutes.js";
+import taskRoutes from "./src/routes/TaskRoutes.js"
+import authRoutes from "./src/routes/AuthRoutes.js";
 import { createDatabase } from "./src/lib/db.js";
 import path from "node:path";
 
@@ -27,12 +28,19 @@ app.use("/projects", projectRoutes);
 // Tasks
 app.use("/tasks", taskRoutes);
 
+// Authentication
+app.use("/auth", authRoutes);
+
 // Inizializzazione database
 createDatabase();
 
 // GUI
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "login.html"));
 });
 
 export default app;

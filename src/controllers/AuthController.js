@@ -1,4 +1,6 @@
 
+import AuthService from "../services/AuthService.js";
+
 async function login(req, res) {
     const { email, password } = req.body;
     const result = await AuthService.login(email, password);
@@ -12,3 +14,11 @@ async function register(req, res) {
 async function logout(req, res) {
     const result = await AuthService.logout();
 }
+
+const AuthController = {
+    login,
+    register,
+    logout
+};
+
+export default AuthController;
