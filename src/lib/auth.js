@@ -6,7 +6,7 @@ dotenv.config();
 
 // Configurazione
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30m';
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS) || 10;
 
 /**

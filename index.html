@@ -386,11 +386,18 @@
         //   API HELPERS
         // ==========================
         async function apiRequest(endpoint, method = 'GET', data = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+
             const options = {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers,
             };
 
             if (data) {
@@ -399,6 +406,14 @@
 
             try {
                 const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                    throw new Error('Sessione scaduta, accedi di nuovo');
+                }
+
                 const result = await response.json();
 
                 if (!response.ok) {
@@ -717,7 +732,11 @@
         // ==========================
         //   INIT
         // ==========================
-        loadData();
+        if (!localStorage.getItem('authToken')) {
+            window.location.href = '/login';
+        } else {
+            loadData();
+        }
 
         // Ricarica i dati ogni 30 secondi (opzionale)
         setInterval(loadData, 30000);

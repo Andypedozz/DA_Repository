@@ -17,7 +17,7 @@ async function findByEmail(email) {
 
 async function create(data) {
     const result = await db.execute("INSERT INTO User (nome, email, password, ruolo) VALUES (?, ?, ?, ?)", [data.nome, data.email, data.password, data.ruolo]);
-    return result;
+    return findById(Number(result.lastInsertRowid));
 }
 
 async function update(id, data) {
