@@ -451,31 +451,31 @@
         // ==========================
         async function loadData() {
             try {
-                const [users, projects, tasks] = await Promise.all([
+                const [usersRes, projectsRes, tasksRes] = await Promise.all([
                     apiRequest('/users'),
                     apiRequest('/projects'),
                     // Nota: per i task dovresti avere una rotta corrispondente
                     // Per ora simuliamo con un array vuoto o aggiungiamo la rotta
                     // Se non hai ancora implementato /tasks, usiamo un array vuoto
-                    apiRequest('/tasks').catch(() => [])
+                    apiRequest('/tasks').catch(() => ({ data: [] }))
                 ]);
 
-                // Se il backend non ha ancora la rotta /tasks, la simuliamo
-                // (in produzione, implementa la rotta TaskRoutes)
-                const allTasks = tasks.length > 0 ? tasks : [];
+                const users = usersRes.data || [];
+                const projects = projectsRes.data || [];
+                const tasks = tasksRes.data || [];
 
                 renderUsers(users);
                 renderProjects(projects);
-                renderTasks(allTasks);
+                renderTasks(tasks);
                 populateSelects(users, projects);
-                updateCounts(users, projects, allTasks);
+                updateCounts(users, projects, tasks);
 
                 // Salva i dati in una variabile globale per i riferimenti
                 window._cachedUsers = users;
                 window._cachedProjects = projects;
-                window._cachedTasks = allTasks;
+                window._cachedTasks = tasks;
 
-                return { users, projects, tasks: allTasks };
+                return { users, projects, tasks };
             } catch (error) {
                 showError('Errore nel caricamento dei dati: ' + error.message);
             }

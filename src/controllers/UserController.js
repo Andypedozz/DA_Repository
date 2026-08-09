@@ -4,12 +4,12 @@ import User from "../models/User.js";
 async function getUserById(req, res) {
     const id = req.params.id;
     const user = await User.findById(id);
-    res.json(user);
+    res.json({ data: user });
 }
 
 async function getAllUsers(req, res) {
     const users = await User.findAll();
-    res.json(users);
+    res.json({ data: users });
 }
 
 async function createUser(req, res) {

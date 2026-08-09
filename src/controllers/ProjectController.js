@@ -2,13 +2,13 @@ import ProjectService from "../services/ProjectService.js";
 
 async function getAllProjects(req, res) {
     const projects = await ProjectService.getAllProjects();
-    res.json(projects);
+    res.json({ data: projects });
 }
 
 async function getProjectById(req, res) {
     const id = req.params.id;
     const project = await ProjectService.getProjectById(id);
-    res.json(project);
+    res.json({ data: project });
 }
 
 async function createProject(req, res) {

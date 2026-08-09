@@ -3,19 +3,19 @@ import Task from "../models/Task.js";
 
 async function getTaskById(req, res) {
     const id = req.params.id;
-    const user = await Task.findById(id);
-    res.json(user);
+    const task = await Task.findById(id);
+    res.json({ data: task });
 }
 
 async function getAllTasks(req, res) {
-    const users = await Task.findAll();
-    res.json(users);
+    const tasks = await Task.findAll();
+    res.json({ data: tasks });
 }
 
 async function getTasksByProject(req, res) {
     const id = req.params.id;
     const tasks = await Task.findByProject(id);
-    res.json(tasks);
+    res.json({ data: tasks });
 }
 
 async function createTask(req, res) {
