@@ -20,7 +20,7 @@ export async function createDatabase() {
                 ruolo TEXT NOT NULL
             )
         `);
-    
+
         await db.execute(`
             CREATE TABLE IF NOT EXISTS Project (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,10 +32,11 @@ export async function createDatabase() {
                 FOREIGN KEY (user_id) REFERENCES User(id)
             )
         `);
-    
+
         await db.execute(`
             CREATE TABLE IF NOT EXISTS Task (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                titolo TEXT NOT NULL DEFAULT '',
                 descrizione TEXT NOT NULL,
                 project_id INTEGER NOT NULL,
                 utente_assegnato INTEGER NOT NULL,

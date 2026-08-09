@@ -9,7 +9,7 @@ async function findById(id) {
     return (await db.execute("SELECT * FROM Task WHERE id = ?", [id])).rows[0];
 }
 
-async function findByProject(id) {
+async function findByProjectId(id) {
     return (await db.execute("SELECT * FROM Task WHERE project_id = ?", [id])).rows;
 }
 
@@ -32,6 +32,7 @@ const Task = {
     findAll,
     findById,
     create,
+    findByProjectId,
     destroy,
     update,
 };

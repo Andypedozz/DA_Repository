@@ -6,9 +6,7 @@ import authRoutes from "./src/routes/AuthRoutes.js";
 import { createDatabase } from "./src/lib/db.js";
 import path from "node:path";
 
-const PORT = process.env.PORT || 3000;
 const app = express();
-
 const __dirname = process.cwd();
 
 // Middleware

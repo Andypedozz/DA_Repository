@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS Project (
 
 CREATE TABLE IF NOT EXISTS Task (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titolo TEXT NOT NULL DEFAULT '',
     descrizione TEXT NOT NULL,
     project_id INTEGER NOT NULL,
     utente_assegnato INTEGER NOT NULL,
