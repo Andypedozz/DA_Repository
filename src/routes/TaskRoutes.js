@@ -8,7 +8,7 @@ const router  = express.Router();
 // I task sono consultabili da qualsiasi utente autenticato
 router.get("/", AuthMiddleware.authenticate, TaskController.getAllTasks);
 router.get("/:id", AuthMiddleware.authenticate, TaskController.getTaskById);
-router.get("/project/:id", AuthMiddleware.authenticate, TaskController.getTasksByProject);
+router.get("/project/:id", AuthMiddleware.authenticate, TaskController.getTasksByProjectId);
 // La creazione è consentita ad admin e member
 router.post("/", AuthMiddleware.authenticate, AuthMiddleware.authorize(["admin", "member"]), TaskController.createTask);
 // Modifica ed eliminazione per admin, utente assegnato o proprietario del progetto

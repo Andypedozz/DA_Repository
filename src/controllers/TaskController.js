@@ -12,9 +12,9 @@ async function getAllTasks(req, res) {
     res.json({ data: tasks });
 }
 
-async function getTasksByProject(req, res) {
+async function getTasksByProjectId(req, res) {
     const id = req.params.id;
-    const tasks = await Task.findByProject(id);
+    const tasks = await Task.findByProjectId(id);
     res.json({ data: tasks });
 }
 
@@ -40,7 +40,7 @@ async function deleteTask(req, res) {
 const TaskController = {
     getTaskById,
     getAllTasks,
-    getTasksByProject,
+    getTasksByProjectId,
     createTask,
     updateTask,
     deleteTask
