@@ -1,4 +1,3 @@
-
 import Task from "../models/Task.js";
 
 async function getTaskById(req, res) {
@@ -43,7 +42,7 @@ const TaskController = {
     getTasksByProjectId,
     createTask,
     updateTask,
-    deleteTask
-}
+    deleteTask,
+};
 
 export default TaskController;

@@ -1,4 +1,3 @@
-
 import User from "../models/User.js";
 
 async function getUserById(req, res) {
@@ -36,7 +35,7 @@ const UserController = {
     getAllUsers,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
 };
 
 export default UserController;

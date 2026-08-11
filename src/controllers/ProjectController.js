@@ -35,7 +35,7 @@ const ProjectController = {
     getProjectById,
     createProject,
     updateProject,
-    deleteProject
+    deleteProject,
 };
 
 export default ProjectController;

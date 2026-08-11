@@ -1,496 +1,505 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestione Database</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
 
+      body {
+        background: #f4f6f9;
+        padding: 2rem;
+        color: #1e293b;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2rem;
+        border-bottom: 4px solid #3b82f6;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        padding: 1.5rem;
+        transition: transform 0.2s;
+        border: 1px solid #e9edf2;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .card-header h2 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      .badge {
+        background: #e6f0ff;
+        color: #1e4f8a;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+      }
+
+      .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-row input,
+      .form-row select,
+      .form-row textarea {
+        flex: 1 1 150px;
+        padding: 0.6rem 0.9rem;
+        border: 1px solid #d1d9e6;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        background: #fafcff;
+        transition: 0.2s;
+      }
+
+      .form-row input:focus,
+      .form-row select:focus,
+      .form-row textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+
+      .form-row textarea {
+        min-width: 200px;
+        resize: vertical;
+      }
+
+      .btn {
+        background: #f1f5f9;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #2563eb;
+        transform: scale(0.97);
+      }
+
+      .btn-success {
+        background: #22c55e;
+        color: white;
+      }
+      .btn-success:hover {
+        background: #16a34a;
+        transform: scale(0.97);
+      }
+
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+      .btn-danger:hover {
+        background: #dc2626;
+        transform: scale(0.97);
+      }
+
+      .btn-warning {
+        background: #f59e0b;
+        color: white;
+      }
+      .btn-warning:hover {
+        background: #d97706;
+        transform: scale(0.97);
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid #d1d9e6;
+      }
+      .btn-outline:hover {
+        background: #f1f5f9;
+      }
+
+      .item-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 0.75rem;
+      }
+
+      .item {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 0.7rem 1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        border-left: 4px solid #3b82f6;
+      }
+
+      .item-info {
+        font-size: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        align-items: center;
+      }
+
+      .item-info .label {
+        font-weight: 600;
+        color: #334155;
+      }
+
+      .item-actions {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+
+      .item-actions .btn {
+        padding: 0.2rem 0.8rem;
+        font-size: 0.75rem;
+      }
+
+      .empty {
+        color: #94a3b8;
+        font-style: italic;
+        padding: 1rem 0;
+        text-align: center;
+      }
+
+      .status-tag {
+        display: inline-block;
+        padding: 0.15rem 0.6rem;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      .status-active {
+        background: #dbeafe;
+        color: #1e4f8a;
+      }
+      .status-archived {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-deleted {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .status-todo {
+        background: #e2e8f0;
+        color: #334155;
+      }
+      .status-doing {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-done {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .priority-low {
+        background: #dbeafe;
+        color: #1e4f8a;
+      }
+      .priority-medium {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .priority-high {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .scrollable {
+        max-height: 280px;
+        overflow-y: auto;
+      }
+
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .error {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        display: none;
+      }
+
+      @media (max-width: 640px) {
         body {
-            background: #f4f6f9;
-            padding: 2rem;
-            color: #1e293b;
+          padding: 1rem;
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 2rem;
-            border-bottom: 4px solid #3b82f6;
-            padding-bottom: 0.5rem;
-            display: inline-block;
-        }
-
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+          grid-template-columns: 1fr;
         }
-
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            padding: 1.5rem;
-            transition: transform 0.2s;
-            border: 1px solid #e9edf2;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-
-        .card-header h2 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .badge {
-            background: #e6f0ff;
-            color: #1e4f8a;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-        }
-
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-bottom: 1rem;
-        }
-
         .form-row input,
         .form-row select,
         .form-row textarea {
-            flex: 1 1 150px;
-            padding: 0.6rem 0.9rem;
-            border: 1px solid #d1d9e6;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            background: #fafcff;
-            transition: 0.2s;
+          flex: 1 1 100%;
         }
-
-        .form-row input:focus,
-        .form-row select:focus,
-        .form-row textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .form-row textarea {
-            min-width: 200px;
-            resize: vertical;
-        }
-
-        .btn {
-            background: #f1f5f9;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #1e293b;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: scale(0.97);
-        }
-
-        .btn-success {
-            background: #22c55e;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #16a34a;
-            transform: scale(0.97);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-            transform: scale(0.97);
-        }
-
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-        .btn-warning:hover {
-            background: #d97706;
-            transform: scale(0.97);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #d1d9e6;
-        }
-        .btn-outline:hover {
-            background: #f1f5f9;
-        }
-
-        .item-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 0.75rem;
-        }
-
-        .item {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 0.7rem 1rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .item-info {
-            font-size: 0.9rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem 1rem;
-            align-items: center;
-        }
-
-        .item-info .label {
-            font-weight: 600;
-            color: #334155;
-        }
-
-        .item-actions {
-            display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-        }
-
-        .item-actions .btn {
-            padding: 0.2rem 0.8rem;
-            font-size: 0.75rem;
-        }
-
-        .empty {
-            color: #94a3b8;
-            font-style: italic;
-            padding: 1rem 0;
-            text-align: center;
-        }
-
-        .status-tag {
-            display: inline-block;
-            padding: 0.15rem 0.6rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        .status-active {
-            background: #dbeafe;
-            color: #1e4f8a;
-        }
-        .status-archived {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .status-deleted {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .status-todo {
-            background: #e2e8f0;
-            color: #334155;
-        }
-        .status-doing {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .status-done {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .priority-low {
-            background: #dbeafe;
-            color: #1e4f8a;
-        }
-        .priority-medium {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .priority-high {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .scrollable {
-            max-height: 280px;
-            overflow-y: auto;
-        }
-
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            margin: 0.5rem 0;
-            display: none;
-        }
-
-        @media (max-width: 640px) {
-            body {
-                padding: 1rem;
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            .form-row input,
-            .form-row select,
-            .form-row textarea {
-                flex: 1 1 100%;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>📊 Dashboard Database</h1>
+      <h1>📊 Dashboard Database</h1>
 
-        <!-- Messaggi di stato -->
-        <div id="message" style="margin: 1rem 0; font-weight: 500;"></div>
-        <div id="errorContainer" class="error"></div>
+      <!-- Messaggi di stato -->
+      <div id="message" style="margin: 1rem 0; font-weight: 500"></div>
+      <div id="errorContainer" class="error"></div>
 
-        <div class="dashboard-grid">
-            <!-- CARD USER -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>👤 Utenti</h2>
-                    <span class="badge" id="userCount">0</span>
-                </div>
-                <div class="form-row">
-                    <input type="text" id="userNome" placeholder="Nome" />
-                    <input type="email" id="userEmail" placeholder="Email" />
-                    <input type="password" id="userPassword" placeholder="Password" />
-                    <select id="userRuolo">
-                        <option value="admin">Admin</option>
-                        <option value="user" selected>User</option>
-                        <option value="guest">Guest</option>
-                    </select>
-                    <button class="btn btn-primary" id="addUserBtn">➕ Aggiungi</button>
-                </div>
-                <div class="item-list" id="userList"></div>
-            </div>
-
-            <!-- CARD PROJECT -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>📁 Progetti</h2>
-                    <span class="badge" id="projectCount">0</span>
-                </div>
-                <div class="form-row">
-                    <input type="text" id="projectNome" placeholder="Nome progetto" />
-                    <input type="text" id="projectDesc" placeholder="Descrizione" />
-                    <select id="projectUserId"></select>
-                    <select id="projectStato">
-                        <option value="active">Active</option>
-                        <option value="archived">Archived</option>
-                        <option value="deleted">Deleted</option>
-                    </select>
-                    <button class="btn btn-primary" id="addProjectBtn">➕ Aggiungi</button>
-                </div>
-                <div class="item-list" id="projectList"></div>
-            </div>
-
-            <!-- CARD TASK -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>✅ Task</h2>
-                    <span class="badge" id="taskCount">0</span>
-                </div>
-                <div class="form-row">
-                    <input type="text" id="taskDesc" placeholder="Descrizione" />
-                    <select id="taskProjectId"></select>
-                    <select id="taskUserId"></select>
-                    <select id="taskStato">
-                        <option value="todo">Todo</option>
-                        <option value="doing">Doing</option>
-                        <option value="done">Done</option>
-                    </select>
-                    <select id="taskPriorita">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                    <input type="date" id="taskScadenza" />
-                    <button class="btn btn-primary" id="addTaskBtn">➕ Aggiungi</button>
-                </div>
-                <div class="item-list" id="taskList"></div>
-            </div>
+      <div class="dashboard-grid">
+        <!-- CARD USER -->
+        <div class="card">
+          <div class="card-header">
+            <h2>👤 Utenti</h2>
+            <span class="badge" id="userCount">0</span>
+          </div>
+          <div class="form-row">
+            <input type="text" id="userNome" placeholder="Nome" />
+            <input type="email" id="userEmail" placeholder="Email" />
+            <input type="password" id="userPassword" placeholder="Password" />
+            <select id="userRuolo">
+              <option value="admin">Admin</option>
+              <option value="user" selected>User</option>
+              <option value="guest">Guest</option>
+            </select>
+            <button class="btn btn-primary" id="addUserBtn">➕ Aggiungi</button>
+          </div>
+          <div class="item-list" id="userList"></div>
         </div>
+
+        <!-- CARD PROJECT -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📁 Progetti</h2>
+            <span class="badge" id="projectCount">0</span>
+          </div>
+          <div class="form-row">
+            <input type="text" id="projectNome" placeholder="Nome progetto" />
+            <input type="text" id="projectDesc" placeholder="Descrizione" />
+            <select id="projectUserId"></select>
+            <select id="projectStato">
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+              <option value="deleted">Deleted</option>
+            </select>
+            <button class="btn btn-primary" id="addProjectBtn">
+              ➕ Aggiungi
+            </button>
+          </div>
+          <div class="item-list" id="projectList"></div>
+        </div>
+
+        <!-- CARD TASK -->
+        <div class="card">
+          <div class="card-header">
+            <h2>✅ Task</h2>
+            <span class="badge" id="taskCount">0</span>
+          </div>
+          <div class="form-row">
+            <input type="text" id="taskDesc" placeholder="Descrizione" />
+            <select id="taskProjectId"></select>
+            <select id="taskUserId"></select>
+            <select id="taskStato">
+              <option value="todo">Todo</option>
+              <option value="doing">Doing</option>
+              <option value="done">Done</option>
+            </select>
+            <select id="taskPriorita">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+            <input type="date" id="taskScadenza" />
+            <button class="btn btn-primary" id="addTaskBtn">➕ Aggiungi</button>
+          </div>
+          <div class="item-list" id="taskList"></div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // ==========================
-        //   API CONFIGURATION
-        // ==========================
-        const API_BASE = window.location.origin; // o specifica http://localhost:3000
+      // ==========================
+      //   API CONFIGURATION
+      // ==========================
+      const API_BASE = window.location.origin; // o specifica http://localhost:3000
 
-        // ==========================
-        //   API HELPERS
-        // ==========================
-        async function apiRequest(endpoint, method = 'GET', data = null) {
-            const headers = {
-                'Content-Type': 'application/json',
-            };
+      // ==========================
+      //   API HELPERS
+      // ==========================
+      async function apiRequest(endpoint, method = "GET", data = null) {
+        const headers = {
+          "Content-Type": "application/json",
+        };
 
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
-            const options = {
-                method,
-                headers,
-            };
-
-            if (data) {
-                options.body = JSON.stringify(data);
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}${endpoint}`, options);
-
-                if (response.status === 401) {
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('user');
-                    window.location.href = '/login';
-                    throw new Error('Sessione scaduta, accedi di nuovo');
-                }
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || `Errore ${response.status}`);
-                }
-
-                return result;
-            } catch (error) {
-                console.error('API Error:', error);
-                showError(error.message);
-                throw error;
-            }
+        const token = localStorage.getItem("authToken");
+        if (token) {
+          headers["Authorization"] = "Bearer " + token;
         }
 
-        function showMessage(text, isError = false) {
-            const el = document.getElementById('message');
-            el.textContent = text;
-            el.style.color = isError ? '#dc2626' : '#16a34a';
-            setTimeout(() => { el.textContent = ''; }, 3000);
+        const options = {
+          method,
+          headers,
+        };
+
+        if (data) {
+          options.body = JSON.stringify(data);
         }
 
-        function showError(text) {
-            const el = document.getElementById('errorContainer');
-            el.textContent = text;
-            el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 5000);
+        try {
+          const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+          if (response.status === 401) {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+            throw new Error("Sessione scaduta, accedi di nuovo");
+          }
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.message || `Errore ${response.status}`);
+          }
+
+          return result;
+        } catch (error) {
+          console.error("API Error:", error);
+          showError(error.message);
+          throw error;
         }
+      }
 
-        function getNow() {
-            return new Date().toISOString().slice(0, 10);
+      function showMessage(text, isError = false) {
+        const el = document.getElementById("message");
+        el.textContent = text;
+        el.style.color = isError ? "#dc2626" : "#16a34a";
+        setTimeout(() => {
+          el.textContent = "";
+        }, 3000);
+      }
+
+      function showError(text) {
+        const el = document.getElementById("errorContainer");
+        el.textContent = text;
+        el.style.display = "block";
+        setTimeout(() => {
+          el.style.display = "none";
+        }, 5000);
+      }
+
+      function getNow() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      // ==========================
+      //   DATA LOADING
+      // ==========================
+      async function loadData() {
+        try {
+          const [usersRes, projectsRes, tasksRes] = await Promise.all([
+            apiRequest("/users"),
+            apiRequest("/projects"),
+            // Nota: per i task dovresti avere una rotta corrispondente
+            // Per ora simuliamo con un array vuoto o aggiungiamo la rotta
+            // Se non hai ancora implementato /tasks, usiamo un array vuoto
+            apiRequest("/tasks").catch(() => ({ data: [] })),
+          ]);
+
+          const users = usersRes.data || [];
+          const projects = projectsRes.data || [];
+          const tasks = tasksRes.data || [];
+
+          renderUsers(users);
+          renderProjects(projects);
+          renderTasks(tasks);
+          populateSelects(users, projects);
+          updateCounts(users, projects, tasks);
+
+          // Salva i dati in una variabile globale per i riferimenti
+          window._cachedUsers = users;
+          window._cachedProjects = projects;
+          window._cachedTasks = tasks;
+
+          return { users, projects, tasks };
+        } catch (error) {
+          showError("Errore nel caricamento dei dati: " + error.message);
         }
+      }
 
-        // ==========================
-        //   DATA LOADING
-        // ==========================
-        async function loadData() {
-            try {
-                const [usersRes, projectsRes, tasksRes] = await Promise.all([
-                    apiRequest('/users'),
-                    apiRequest('/projects'),
-                    // Nota: per i task dovresti avere una rotta corrispondente
-                    // Per ora simuliamo con un array vuoto o aggiungiamo la rotta
-                    // Se non hai ancora implementato /tasks, usiamo un array vuoto
-                    apiRequest('/tasks').catch(() => ({ data: [] }))
-                ]);
-
-                const users = usersRes.data || [];
-                const projects = projectsRes.data || [];
-                const tasks = tasksRes.data || [];
-
-                renderUsers(users);
-                renderProjects(projects);
-                renderTasks(tasks);
-                populateSelects(users, projects);
-                updateCounts(users, projects, tasks);
-
-                // Salva i dati in una variabile globale per i riferimenti
-                window._cachedUsers = users;
-                window._cachedProjects = projects;
-                window._cachedTasks = tasks;
-
-                return { users, projects, tasks };
-            } catch (error) {
-                showError('Errore nel caricamento dei dati: ' + error.message);
-            }
+      // ==========================
+      //   RENDER FUNCTIONS
+      // ==========================
+      function renderUsers(users) {
+        const list = document.getElementById("userList");
+        if (!users || users.length === 0) {
+          list.innerHTML = '<div class="empty">Nessun utente</div>';
+          return;
         }
-
-        // ==========================
-        //   RENDER FUNCTIONS
-        // ==========================
-        function renderUsers(users) {
-            const list = document.getElementById('userList');
-            if (!users || users.length === 0) {
-                list.innerHTML = '<div class="empty">Nessun utente</div>';
-                return;
-            }
-            list.innerHTML = users.map(u => `
+        list.innerHTML = users
+          .map(
+            (u) => `
                 <div class="item">
                     <div class="item-info">
                         <span><span class="label">${u.nome}</span> (${u.email})</span>
@@ -500,52 +509,57 @@
                         <button class="btn btn-danger" onclick="deleteUser(${u.id})">🗑</button>
                     </div>
                 </div>
-            `).join('');
-        }
+            `,
+          )
+          .join("");
+      }
 
-        function renderProjects(projects) {
-            const list = document.getElementById('projectList');
-            if (!projects || projects.length === 0) {
-                list.innerHTML = '<div class="empty">Nessun progetto</div>';
-                return;
-            }
-            const users = window._cachedUsers || [];
-            list.innerHTML = projects.map(p => {
-                const user = users.find(u => u.id === p.user_id);
-                const userName = user ? user.nome : '?';
-                const statusClass = `status-${p.stato}`;
-                return `
+      function renderProjects(projects) {
+        const list = document.getElementById("projectList");
+        if (!projects || projects.length === 0) {
+          list.innerHTML = '<div class="empty">Nessun progetto</div>';
+          return;
+        }
+        const users = window._cachedUsers || [];
+        list.innerHTML = projects
+          .map((p) => {
+            const user = users.find((u) => u.id === p.user_id);
+            const userName = user ? user.nome : "?";
+            const statusClass = `status-${p.stato}`;
+            return `
                     <div class="item">
                         <div class="item-info">
                             <span><span class="label">${p.nome}</span></span>
                             <span class="status-tag ${statusClass}">${p.stato}</span>
                             <span>👤 ${userName}</span>
-                            <span style="font-size:0.75rem;color:#64748b;">${p.data_creazione || ''}</span>
+                            <span style="font-size:0.75rem;color:#64748b;">${p.data_creazione || ""}</span>
                         </div>
                         <div class="item-actions">
                             <button class="btn btn-danger" onclick="deleteProject(${p.id})">🗑</button>
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
+          })
+          .join("");
+      }
 
-        function renderTasks(tasks) {
-            const list = document.getElementById('taskList');
-            if (!tasks || tasks.length === 0) {
-                list.innerHTML = '<div class="empty">Nessun task</div>';
-                return;
-            }
-            const projects = window._cachedProjects || [];
-            const users = window._cachedUsers || [];
-            list.innerHTML = tasks.map(t => {
-                const project = projects.find(p => p.id === t.project_id);
-                const user = users.find(u => u.id === t.utente_assegnato);
-                const projName = project ? project.nome : '?';
-                const userName = user ? user.nome : '?';
-                const statusClass = `status-${t.stato}`;
-                const priorityClass = `priority-${t.priorita}`;
-                return `
+      function renderTasks(tasks) {
+        const list = document.getElementById("taskList");
+        if (!tasks || tasks.length === 0) {
+          list.innerHTML = '<div class="empty">Nessun task</div>';
+          return;
+        }
+        const projects = window._cachedProjects || [];
+        const users = window._cachedUsers || [];
+        list.innerHTML = tasks
+          .map((t) => {
+            const project = projects.find((p) => p.id === t.project_id);
+            const user = users.find((u) => u.id === t.utente_assegnato);
+            const projName = project ? project.nome : "?";
+            const userName = user ? user.nome : "?";
+            const statusClass = `status-${t.stato}`;
+            const priorityClass = `priority-${t.priorita}`;
+            return `
                     <div class="item">
                         <div class="item-info">
                             <span><span class="label">${t.descrizione}</span></span>
@@ -560,186 +574,210 @@
                         </div>
                     </div>
                 `;
-            }).join('');
+          })
+          .join("");
+      }
+
+      function populateSelects(users, projects) {
+        // Project user select
+        const projectUserSelect = document.getElementById("projectUserId");
+        projectUserSelect.innerHTML = users
+          .map((u) => `<option value="${u.id}">${u.nome}</option>`)
+          .join("");
+
+        // Task project select
+        const taskProjectSelect = document.getElementById("taskProjectId");
+        taskProjectSelect.innerHTML = projects
+          .map((p) => `<option value="${p.id}">${p.nome}</option>`)
+          .join("");
+
+        // Task user select
+        const taskUserSelect = document.getElementById("taskUserId");
+        taskUserSelect.innerHTML = users
+          .map((u) => `<option value="${u.id}">${u.nome}</option>`)
+          .join("");
+      }
+
+      function updateCounts(users, projects, tasks) {
+        document.getElementById("userCount").textContent = users
+          ? users.length
+          : 0;
+        document.getElementById("projectCount").textContent = projects
+          ? projects.length
+          : 0;
+        document.getElementById("taskCount").textContent = tasks
+          ? tasks.length
+          : 0;
+      }
+
+      // ==========================
+      //   CRUD OPERATIONS (API)
+      // ==========================
+
+      // --- USER ---
+      window.addUser = async function () {
+        const nome = document.getElementById("userNome").value.trim();
+        const email = document.getElementById("userEmail").value.trim();
+        const password = document.getElementById("userPassword").value.trim();
+        const ruolo = document.getElementById("userRuolo").value;
+
+        if (!nome || !email || !password) {
+          showMessage("Compila tutti i campi utente", true);
+          return;
         }
 
-        function populateSelects(users, projects) {
-            // Project user select
-            const projectUserSelect = document.getElementById('projectUserId');
-            projectUserSelect.innerHTML = users.map(u =>
-                `<option value="${u.id}">${u.nome}</option>`
-            ).join('');
+        try {
+          const newUser = await apiRequest("/users", "POST", {
+            nome,
+            email,
+            password,
+            ruolo,
+          });
+          showMessage(`Utente "${nome}" aggiunto ✅`);
+          document.getElementById("userNome").value = "";
+          document.getElementById("userEmail").value = "";
+          document.getElementById("userPassword").value = "";
+          await loadData();
+        } catch (error) {
+          showMessage("Errore nella creazione utente", true);
+        }
+      };
 
-            // Task project select
-            const taskProjectSelect = document.getElementById('taskProjectId');
-            taskProjectSelect.innerHTML = projects.map(p =>
-                `<option value="${p.id}">${p.nome}</option>`
-            ).join('');
+      window.deleteUser = async function (id) {
+        if (!confirm("Eliminare utente?")) return;
+        try {
+          await apiRequest(`/users/${id}`, "DELETE");
+          showMessage("Utente eliminato ✅");
+          await loadData();
+        } catch (error) {
+          showMessage("Errore nell'eliminazione utente", true);
+        }
+      };
 
-            // Task user select
-            const taskUserSelect = document.getElementById('taskUserId');
-            taskUserSelect.innerHTML = users.map(u =>
-                `<option value="${u.id}">${u.nome}</option>`
-            ).join('');
+      // --- PROJECT ---
+      window.addProject = async function () {
+        const nome = document.getElementById("projectNome").value.trim();
+        const descrizione = document.getElementById("projectDesc").value.trim();
+        const user_id = parseInt(
+          document.getElementById("projectUserId").value,
+        );
+        const stato = document.getElementById("projectStato").value;
+
+        if (!nome || !descrizione) {
+          showMessage("Inserisci nome e descrizione", true);
+          return;
         }
 
-        function updateCounts(users, projects, tasks) {
-            document.getElementById('userCount').textContent = users ? users.length : 0;
-            document.getElementById('projectCount').textContent = projects ? projects.length : 0;
-            document.getElementById('taskCount').textContent = tasks ? tasks.length : 0;
+        try {
+          const newProject = await apiRequest("/projects", "POST", {
+            nome,
+            descrizione,
+            user_id,
+            stato,
+            data_creazione: getNow(),
+          });
+          showMessage(`Progetto "${nome}" aggiunto ✅`);
+          document.getElementById("projectNome").value = "";
+          document.getElementById("projectDesc").value = "";
+          await loadData();
+        } catch (error) {
+          showMessage("Errore nella creazione progetto", true);
+        }
+      };
+
+      window.deleteProject = async function (id) {
+        if (!confirm("Eliminare progetto?")) return;
+        try {
+          await apiRequest(`/projects/${id}`, "DELETE");
+          showMessage("Progetto eliminato ✅");
+          await loadData();
+        } catch (error) {
+          showMessage("Errore nell'eliminazione progetto", true);
+        }
+      };
+
+      // --- TASK ---
+      window.addTask = async function () {
+        const descrizione = document.getElementById("taskDesc").value.trim();
+        const project_id = parseInt(
+          document.getElementById("taskProjectId").value,
+        );
+        const utente_assegnato = parseInt(
+          document.getElementById("taskUserId").value,
+        );
+        const stato = document.getElementById("taskStato").value;
+        const priorita = document.getElementById("taskPriorita").value;
+        const scadenza = document.getElementById("taskScadenza").value;
+
+        if (!descrizione || !scadenza) {
+          showMessage("Compila descrizione e scadenza", true);
+          return;
         }
 
-        // ==========================
-        //   CRUD OPERATIONS (API)
-        // ==========================
-
-        // --- USER ---
-        window.addUser = async function() {
-            const nome = document.getElementById('userNome').value.trim();
-            const email = document.getElementById('userEmail').value.trim();
-            const password = document.getElementById('userPassword').value.trim();
-            const ruolo = document.getElementById('userRuolo').value;
-            
-            if (!nome || !email || !password) {
-                showMessage('Compila tutti i campi utente', true);
-                return;
-            }
-
-            try {
-                const newUser = await apiRequest('/users', 'POST', { nome, email, password, ruolo });
-                showMessage(`Utente "${nome}" aggiunto ✅`);
-                document.getElementById('userNome').value = '';
-                document.getElementById('userEmail').value = '';
-                document.getElementById('userPassword').value = '';
-                await loadData();
-            } catch (error) {
-                showMessage('Errore nella creazione utente', true);
-            }
-        };
-
-        window.deleteUser = async function(id) {
-            if (!confirm('Eliminare utente?')) return;
-            try {
-                await apiRequest(`/users/${id}`, 'DELETE');
-                showMessage('Utente eliminato ✅');
-                await loadData();
-            } catch (error) {
-                showMessage('Errore nell\'eliminazione utente', true);
-            }
-        };
-
-        // --- PROJECT ---
-        window.addProject = async function() {
-            const nome = document.getElementById('projectNome').value.trim();
-            const descrizione = document.getElementById('projectDesc').value.trim();
-            const user_id = parseInt(document.getElementById('projectUserId').value);
-            const stato = document.getElementById('projectStato').value;
-
-            if (!nome || !descrizione) {
-                showMessage('Inserisci nome e descrizione', true);
-                return;
-            }
-
-            try {
-                const newProject = await apiRequest('/projects', 'POST', {
-                    nome,
-                    descrizione,
-                    user_id,
-                    stato,
-                    data_creazione: getNow()
-                });
-                showMessage(`Progetto "${nome}" aggiunto ✅`);
-                document.getElementById('projectNome').value = '';
-                document.getElementById('projectDesc').value = '';
-                await loadData();
-            } catch (error) {
-                showMessage('Errore nella creazione progetto', true);
-            }
-        };
-
-        window.deleteProject = async function(id) {
-            if (!confirm('Eliminare progetto?')) return;
-            try {
-                await apiRequest(`/projects/${id}`, 'DELETE');
-                showMessage('Progetto eliminato ✅');
-                await loadData();
-            } catch (error) {
-                showMessage('Errore nell\'eliminazione progetto', true);
-            }
-        };
-
-        // --- TASK ---
-        window.addTask = async function() {
-            const descrizione = document.getElementById('taskDesc').value.trim();
-            const project_id = parseInt(document.getElementById('taskProjectId').value);
-            const utente_assegnato = parseInt(document.getElementById('taskUserId').value);
-            const stato = document.getElementById('taskStato').value;
-            const priorita = document.getElementById('taskPriorita').value;
-            const scadenza = document.getElementById('taskScadenza').value;
-
-            if (!descrizione || !scadenza) {
-                showMessage('Compila descrizione e scadenza', true);
-                return;
-            }
-
-            try {
-                // Nota: se non hai ancora implementato /tasks, questa parte darà errore
-                // Per ora usiamo un endpoint generico o simuliamo
-                const newTask = await apiRequest('/tasks', 'POST', {
-                    descrizione,
-                    project_id,
-                    utente_assegnato,
-                    stato,
-                    priorita,
-                    scadenza
-                });
-                showMessage('Task aggiunto ✅');
-                document.getElementById('taskDesc').value = '';
-                document.getElementById('taskScadenza').value = '';
-                await loadData();
-            } catch (error) {
-                // Se /tasks non è implementato, mostriamo un messaggio
-                if (error.message.includes('404')) {
-                    showMessage('⚠️ Implementa la rotta /tasks nel backend', true);
-                } else {
-                    showMessage('Errore nella creazione task', true);
-                }
-            }
-        };
-
-        window.deleteTask = async function(id) {
-            if (!confirm('Eliminare task?')) return;
-            try {
-                await apiRequest(`/tasks/${id}`, 'DELETE');
-                showMessage('Task eliminato ✅');
-                await loadData();
-            } catch (error) {
-                if (error.message.includes('404')) {
-                    showMessage('⚠️ Implementa la rotta /tasks nel backend', true);
-                } else {
-                    showMessage('Errore nell\'eliminazione task', true);
-                }
-            }
-        };
-
-        // ==========================
-        //   EVENTI BOTTONI
-        // ==========================
-        document.getElementById('addUserBtn').addEventListener('click', window.addUser);
-        document.getElementById('addProjectBtn').addEventListener('click', window.addProject);
-        document.getElementById('addTaskBtn').addEventListener('click', window.addTask);
-
-        // ==========================
-        //   INIT
-        // ==========================
-        if (!localStorage.getItem('authToken')) {
-            window.location.href = '/login';
-        } else {
-            loadData();
+        try {
+          // Nota: se non hai ancora implementato /tasks, questa parte darà errore
+          // Per ora usiamo un endpoint generico o simuliamo
+          const newTask = await apiRequest("/tasks", "POST", {
+            descrizione,
+            project_id,
+            utente_assegnato,
+            stato,
+            priorita,
+            scadenza,
+          });
+          showMessage("Task aggiunto ✅");
+          document.getElementById("taskDesc").value = "";
+          document.getElementById("taskScadenza").value = "";
+          await loadData();
+        } catch (error) {
+          // Se /tasks non è implementato, mostriamo un messaggio
+          if (error.message.includes("404")) {
+            showMessage("⚠️ Implementa la rotta /tasks nel backend", true);
+          } else {
+            showMessage("Errore nella creazione task", true);
+          }
         }
+      };
 
-        // Ricarica i dati ogni 30 secondi (opzionale)
-        setInterval(loadData, 30000);
+      window.deleteTask = async function (id) {
+        if (!confirm("Eliminare task?")) return;
+        try {
+          await apiRequest(`/tasks/${id}`, "DELETE");
+          showMessage("Task eliminato ✅");
+          await loadData();
+        } catch (error) {
+          if (error.message.includes("404")) {
+            showMessage("⚠️ Implementa la rotta /tasks nel backend", true);
+          } else {
+            showMessage("Errore nell'eliminazione task", true);
+          }
+        }
+      };
+
+      // ==========================
+      //   EVENTI BOTTONI
+      // ==========================
+      document
+        .getElementById("addUserBtn")
+        .addEventListener("click", window.addUser);
+      document
+        .getElementById("addProjectBtn")
+        .addEventListener("click", window.addProject);
+      document
+        .getElementById("addTaskBtn")
+        .addEventListener("click", window.addTask);
+
+      // ==========================
+      //   INIT
+      // ==========================
+      if (!localStorage.getItem("authToken")) {
+        window.location.href = "/login";
+      } else {
+        loadData();
+      }
+
+      // Ricarica i dati ogni 30 secondi (opzionale)
+      setInterval(loadData, 30000);
     </script>
-</body>
+  </body>
 </html>

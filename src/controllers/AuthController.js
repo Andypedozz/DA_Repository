@@ -1,4 +1,3 @@
-
 import AuthService from "../services/AuthService.js";
 
 async function login(req, res) {
@@ -10,7 +9,7 @@ async function login(req, res) {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 }
@@ -23,7 +22,7 @@ async function register(req, res) {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 }
@@ -31,14 +30,14 @@ async function register(req, res) {
 async function logout(req, res) {
     return res.json({
         success: true,
-        message: "Logout effettuato con successo"
+        message: "Logout effettuato con successo",
     });
 }
 
 const AuthController = {
     login,
     register,
-    logout
+    logout,
 };
 
 export default AuthController;

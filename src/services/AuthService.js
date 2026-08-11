@@ -21,7 +21,7 @@ async function login(email, password) {
             return {
                 success: false,
                 status: 400,
-                message: "Email e password sono obbligatorie"
+                message: "Email e password sono obbligatorie",
             };
         }
 
@@ -30,16 +30,19 @@ async function login(email, password) {
             return {
                 success: false,
                 status: 401,
-                message: "Credenziali non valide!"
+                message: "Credenziali non valide!",
             };
         }
 
-        const isValidPassword = await PasswordHandler.comparePassword(password, user.password);
+        const isValidPassword = await PasswordHandler.comparePassword(
+            password,
+            user.password,
+        );
         if (!isValidPassword) {
             return {
                 success: false,
                 status: 401,
-                message: "Credenziali non valide!"
+                message: "Credenziali non valide!",
             };
         }
 
@@ -47,7 +50,7 @@ async function login(email, password) {
             id: user.id,
             nome: user.nome,
             email: user.email,
-            role: user.ruolo
+            role: user.ruolo,
         };
 
         const token = TokenHandler.generateToken(payload);
@@ -59,14 +62,14 @@ async function login(email, password) {
                 id: user.id,
                 nome: user.nome,
                 email: user.email,
-                role: user.ruolo
-            }
+                role: user.ruolo,
+            },
         };
     } catch (error) {
         return {
             success: false,
             status: 500,
-            message: error.message
+            message: error.message,
         };
     }
 }
@@ -82,19 +85,19 @@ async function register(userData) {
             return {
                 success: false,
                 status: 400,
-                message: "Nome, email e password sono obbligatori"
+                message: "Nome, email e password sono obbligatori",
             };
         }
 
         const passwordValidation = PasswordHandler.validatePasswordStrength(
-            userData.password
+            userData.password,
         );
 
         if (!passwordValidation.isValid) {
             return {
                 success: false,
                 status: 400,
-                errors: passwordValidation.errors
+                errors: passwordValidation.errors,
             };
         }
 
@@ -103,17 +106,19 @@ async function register(userData) {
             return {
                 success: false,
                 status: 409,
-                message: "Email già registrata"
+                message: "Email già registrata",
             };
         }
 
-        const hashedPassword = await PasswordHandler.hashPassword(userData.password);
+        const hashedPassword = await PasswordHandler.hashPassword(
+            userData.password,
+        );
 
         const newUser = await User.create({
             nome: userData.nome,
             email: userData.email,
             password: hashedPassword,
-            ruolo: normalizeRole(userData.ruolo)
+            ruolo: normalizeRole(userData.ruolo),
         });
 
         return {
@@ -124,21 +129,21 @@ async function register(userData) {
                 id: newUser.id,
                 nome: newUser.nome,
                 email: newUser.email,
-                role: newUser.ruolo
-            }
+                role: newUser.ruolo,
+            },
         };
     } catch (error) {
         return {
             success: false,
             status: 500,
-            message: error.message
+            message: error.message,
         };
     }
 }
 
 const AuthService = {
     login,
-    register
-}
+    register,
+};
 
 export default AuthService;

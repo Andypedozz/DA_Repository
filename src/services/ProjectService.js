@@ -4,9 +4,7 @@ async function getAllProjects() {
     try {
         const projects = await Project.findAll();
         return projects;
-    } catch (error) {
-
-    } 
+    } catch (error) {}
 }
 
 async function getProjectById(id) {
@@ -14,9 +12,7 @@ async function getProjectById(id) {
         const project = await Project.findById(id);
 
         return project;
-    } catch (error) {
-        
-    }
+    } catch (error) {}
 }
 
 async function createProject(data) {
@@ -51,7 +47,7 @@ const ProjectService = {
     getProjectById,
     createProject,
     updateProject,
-    deleteProject
+    deleteProject,
 };
 
 export default ProjectService;

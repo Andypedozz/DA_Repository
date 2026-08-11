@@ -15,7 +15,7 @@ async function isProjectOwnerOrAdmin(req, res, next) {
         if (!project) {
             return res.status(404).json({
                 success: false,
-                message: "Progetto non trovato"
+                message: "Progetto non trovato",
             });
         }
 
@@ -25,12 +25,12 @@ async function isProjectOwnerOrAdmin(req, res, next) {
 
         return res.status(403).json({
             success: false,
-            message: "Permessi insufficienti"
+            message: "Permessi insufficienti",
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 }
@@ -49,7 +49,7 @@ async function canManageTask(req, res, next) {
         if (!task) {
             return res.status(404).json({
                 success: false,
-                message: "Task non trovato"
+                message: "Task non trovato",
             });
         }
 
@@ -64,17 +64,14 @@ async function canManageTask(req, res, next) {
 
         return res.status(403).json({
             success: false,
-            message: "Permessi insufficienti"
+            message: "Permessi insufficienti",
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
         });
     }
 }
 
-export {
-    isProjectOwnerOrAdmin,
-    canManageTask
-};
+export { isProjectOwnerOrAdmin, canManageTask };

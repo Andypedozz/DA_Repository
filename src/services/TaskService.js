@@ -1,4 +1,4 @@
-import Task from "../models/Task.js"; 
+import Task from "../models/Task.js";
 
 async function getAllTasks() {
     const tasks = await Task.findAll();
@@ -11,7 +11,7 @@ async function getTaskById(id) {
 }
 
 async function getTaskByProject(id) {
-    const tasks = await Task.findByProject(id);
+    const tasks = await Task.findByProjectId(id);
     return tasks;
 }
 
@@ -48,7 +48,7 @@ const TaskService = {
     getTaskByProject,
     createTask,
     updateTask,
-    deleteTask
-}
+    deleteTask,
+};
 
 export default TaskService;

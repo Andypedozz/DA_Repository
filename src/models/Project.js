@@ -6,16 +6,36 @@ async function findAll() {
 }
 
 async function findById(id) {
-    return (await db.execute("SELECT * FROM Project WHERE id = ?", [id])).rows[0];
+    return (await db.execute("SELECT * FROM Project WHERE id = ?", [id]))
+        .rows[0];
 }
 
 async function create(data) {
-    const result = await db.execute("INSERT INTO Project (nome, descrizione, user_id, stato, data_creazione) VALUES (?, ?, ?, ?, ?)", [data.nome, data.descrizione, data.user_id, data.stato, data.data_creazione]);
+    const result = await db.execute(
+        "INSERT INTO Project (nome, descrizione, user_id, stato, data_creazione) VALUES (?, ?, ?, ?, ?)",
+        [
+            data.nome,
+            data.descrizione,
+            data.user_id,
+            data.stato,
+            data.data_creazione,
+        ],
+    );
     return result;
 }
 
 async function update(id, data) {
-    const result = await db.execute("UPDATE Project SET nome = ?, descrizione = ?, user_id = ?, stato = ?, data_creazione = ? WHERE id = ?", [data.nome, data.descrizione, data.user_id, data.stato, data.data_creazione, id]);
+    const result = await db.execute(
+        "UPDATE Project SET nome = ?, descrizione = ?, user_id = ?, stato = ?, data_creazione = ? WHERE id = ?",
+        [
+            data.nome,
+            data.descrizione,
+            data.user_id,
+            data.stato,
+            data.data_creazione,
+            id,
+        ],
+    );
     return result;
 }
 

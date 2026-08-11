@@ -1,12 +1,12 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 // Configurazione
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30m';
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "30m";
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS) || 10;
 
 /**
@@ -23,7 +23,9 @@ class PasswordHandler {
             const salt = await bcrypt.genSalt(SALT_ROUNDS);
             return await bcrypt.hash(password, salt);
         } catch (error) {
-            throw new Error(`Errore nell'hashing della password: ${error.message}`);
+            throw new Error(
+                `Errore nell'hashing della password: ${error.message}`,
+            );
         }
     }
 
@@ -50,24 +52,30 @@ class PasswordHandler {
         const errors = [];
 
         if (password.length < 8) {
-            errors.push('La password deve essere almeno di 8 caratteri');
+            errors.push("La password deve essere almeno di 8 caratteri");
         }
         if (!/[A-Z]/.test(password)) {
-            errors.push('La password deve contenere almeno una lettera maiuscola');
+            errors.push(
+                "La password deve contenere almeno una lettera maiuscola",
+            );
         }
         if (!/[a-z]/.test(password)) {
-            errors.push('La password deve contenere almeno una lettera minuscola');
+            errors.push(
+                "La password deve contenere almeno una lettera minuscola",
+            );
         }
         if (!/[0-9]/.test(password)) {
-            errors.push('La password deve contenere almeno un numero');
+            errors.push("La password deve contenere almeno un numero");
         }
         if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(password)) {
-            errors.push('La password deve contenere almeno un carattere speciale');
+            errors.push(
+                "La password deve contenere almeno un carattere speciale",
+            );
         }
 
         return {
             isValid: errors.length === 0,
-            errors
+            errors,
         };
     }
 }
@@ -84,17 +92,15 @@ class TokenHandler {
      */
     static generateToken(payload, options = {}) {
         try {
-            const token = jwt.sign(
-                payload,
-                JWT_SECRET,
-                {
-                    expiresIn: options.expiresIn || JWT_EXPIRES_IN,
-                    ...options
-                }
-            );
+            const token = jwt.sign(payload, JWT_SECRET, {
+                expiresIn: options.expiresIn || JWT_EXPIRES_IN,
+                ...options,
+            });
             return token;
         } catch (error) {
-            throw new Error(`Errore nella generazione del token: ${error.message}`);
+            throw new Error(
+                `Errore nella generazione del token: ${error.message}`,
+            );
         }
     }
 
@@ -108,12 +114,14 @@ class TokenHandler {
             const decoded = jwt.verify(token, JWT_SECRET);
             return decoded;
         } catch (error) {
-            if (error.name === 'TokenExpiredError') {
-                throw new Error('Token scaduto');
-            } else if (error.name === 'JsonWebTokenError') {
-                throw new Error('Token non valido');
+            if (error.name === "TokenExpiredError") {
+                throw new Error("Token scaduto");
+            } else if (error.name === "JsonWebTokenError") {
+                throw new Error("Token non valido");
             } else {
-                throw new Error(`Errore nella verifica del token: ${error.message}`);
+                throw new Error(
+                    `Errore nella verifica del token: ${error.message}`,
+                );
             }
         }
     }
@@ -127,7 +135,9 @@ class TokenHandler {
         try {
             return jwt.decode(token);
         } catch (error) {
-            throw new Error(`Errore nella decodifica del token: ${error.message}`);
+            throw new Error(
+                `Errore nella decodifica del token: ${error.message}`,
+            );
         }
     }
 
@@ -137,7 +147,7 @@ class TokenHandler {
      * @returns {string|null} - Token estratto o null
      */
     static extractTokenFromHeader(authHeader) {
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return null;
         }
         return authHeader.substring(7);
@@ -179,7 +189,7 @@ class AuthMiddleware {
             if (!token) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Token non fornito o formato non valido'
+                    message: "Token non fornito o formato non valido",
                 });
             }
 
@@ -189,7 +199,7 @@ class AuthMiddleware {
         } catch (error) {
             return res.status(401).json({
                 success: false,
-                message: error.message
+                message: error.message,
             });
         }
     }
@@ -203,14 +213,17 @@ class AuthMiddleware {
             if (!req.user) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Utente non autenticato'
+                    message: "Utente non autenticato",
                 });
             }
 
-            if (allowedRoles.length > 0 && !allowedRoles.includes(req.user.role)) {
+            if (
+                allowedRoles.length > 0 &&
+                !allowedRoles.includes(req.user.role)
+            ) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permessi insufficienti'
+                    message: "Permessi insufficienti",
                 });
             }
 
@@ -220,8 +233,4 @@ class AuthMiddleware {
 }
 
 // Esporta le classi e i moduli
-export {
-    PasswordHandler,
-    TokenHandler,
-    AuthMiddleware,
-};
+export { PasswordHandler, TokenHandler, AuthMiddleware };

@@ -30,7 +30,7 @@ const UserService = {
     getUserById,
     createUser,
     updateUser,
-    deleteUser
-}
+    deleteUser,
+};
 
 export default UserService;

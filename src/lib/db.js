@@ -1,15 +1,14 @@
 import { createClient } from "@libsql/client";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 
 dotenv.config();
 
 export const db = createClient({
     url: process.env.DB_URL,
-    authToken: process.env.DB_TOKEN
-})
+    authToken: process.env.DB_TOKEN,
+});
 
 export async function createDatabase() {
-
     try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS User (
