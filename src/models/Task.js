@@ -9,18 +9,17 @@ async function findById(id) {
 }
 
 async function findByProjectId(id) {
-    return (await db.execute("SELECT * FROM Task WHERE project_id = ?", [id]))
-        .rows;
+    return (await db.execute("SELECT * FROM Task WHERE project_id = ?", [id])).rows;
 }
 
 async function create(data) {
     const result = await db.execute(
-        "INSERT INTO Task (titolo, descrizione, project_id, user_id, stato, priorita, scadenza) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO Task (titolo, descrizione, project_id, utente_assegnato, stato, priorita, scadenza) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
             data.titolo,
             data.descrizione,
             data.project_id,
-            data.user_id,
+            data.utente_assegnato,
             data.stato,
             data.priorita,
             data.scadenza,
@@ -31,12 +30,12 @@ async function create(data) {
 
 async function update(id, data) {
     const result = await db.execute(
-        "UPDATE Task SET titolo = ?, descrizione = ?, project_id = ?, user_id = ?, stato = ?, priorita = ?, scadenza = ? WHERE id = ?",
+        "UPDATE Task SET titolo = ?, descrizione = ?, project_id = ?, utente_assegnato = ?, stato = ?, priorita = ?, scadenza = ? WHERE id = ?",
         [
             data.titolo,
             data.descrizione,
             data.project_id,
-            data.user_id,
+            data.utente_assegnato,
             data.stato,
             data.priorita,
             data.scadenza,
